@@ -47,7 +47,6 @@
     </section>
 
     <script>
-        // Função para alternar entre as telas
         function mostrarTela(nome) {
             const telas = document.querySelectorAll('section');
             telas.forEach(tela => {
@@ -60,7 +59,6 @@
             }
         }
 
-        // Evento de Login
         const formLogin = document.getElementById('form-login');
         formLogin.addEventListener('submit', function(evento) {
             evento.preventDefault();
@@ -84,7 +82,6 @@
             });
         });
 
-        // Evento de Cadastro de Produto
         const formProduto = document.getElementById('form-produto');
         formProduto.addEventListener('submit', function(evento) {
             evento.preventDefault();
@@ -92,7 +89,6 @@
             const nome = document.getElementById('nome-produto').value;
             const preco = document.getElementById('preco-produto').value;
 
-            // Validações
             if (nome === '' || preco === '') {
                 document.getElementById('mensagem-produto').textContent = 'Preencha nome e preço';
                 return;
@@ -103,7 +99,6 @@
                 return;
             }
 
-            // Envio para o servidor
             fetch('http://localhost:3000/produtos', {
                 method: 'POST',
                 headers: {
@@ -125,7 +120,6 @@
             });
         });
 
-        // Gestão de Produtos no Frontend
         let produtos = [
             { nome: 'Camiseta', preco: 49.90 },
             { nome: 'Caneca', preco: 24.90 },
@@ -151,7 +145,8 @@
             renderProdutos();
         }
 
-        // Renderiza os produtos ao carregar a página
+        adicionarProduto('Teclado', 14.90)
+
         renderProdutos();
     </script>
 </body>
