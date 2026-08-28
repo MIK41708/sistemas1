@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel da Loja</title>
     <link rel="stylesheet" href="style.css">
-
+</head>
 <body>
 
     <h1>Painel Loja</h1>
@@ -20,20 +20,20 @@
     <section id="tela-login">
         <h2>Tela de Login</h2>
         <form id="form-login">
-            <input type="email" id="email" placeholder="E-mail:">
-            <input type="password" id="senha" placeholder="Senha:">
+            <input type="email" id="email" placeholder="E-mail:" required>
+            <input type="password" id="senha" placeholder="Senha:" required>
             <button type="submit">Enviar</button>
         </form>
     </section>
 
     <section id="tela-produtos" style="display: none;">
         <h2>Tela Produtos</h2>
-        <p>Aqui entrará a lista vinda da API (aula 4).</p>
+        <div id="container-produtos"></div>
     </section>
 
     <section id="tela-admin" style="display: none;">
         <h2>Área Admin</h2>
-        <form action="form-produto">
+        <form id="form-produto">
             <input type="text" id="nome-produto" placeholder="Nome do produto">
             <input type="number" id="preco-produto" placeholder="Preço" step="0.01">
             <button type="submit">Cadastrar</button>
@@ -42,30 +42,28 @@
     </section>
 
     <section id="tela-perfil" style="display: none;">
-        <h2>Perfil </h2>
+        <h2>Perfil</h2>
         <p>Só eu posso acessar meu perfil.</p>
     </section>
 
     <script>
+        // Função para alternar entre as telas
         function mostrarTela(nome) {
-
             const telas = document.querySelectorAll('section');
-
             telas.forEach(tela => {
                 tela.style.display = 'none';
             });
 
             const telaEscolhida = document.getElementById('tela-' + nome);
-
-            telaEscolhida.style.display = 'block';
+            if (telaEscolhida) {
+                telaEscolhida.style.display = 'block';
+            }
         }
 
-        const form_login = document.getElementById('form-login');
-
-        form_login.addEventListener('submit', function(evento) {
+        // Evento de Login
+        const formLogin = document.getElementById('form-login');
+        formLogin.addEventListener('submit', function(evento) {
             evento.preventDefault();
-
-            console.log('formulario enviado, mas a página não recarregou!');
 
             const email = document.getElementById('email').value;
             const senha = document.getElementById('senha').value;
@@ -75,35 +73,38 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    email: email,
-                    senha: senha
-                })
+                body: JSON.stringify({ email: email, senha: senha })
             })
             .then(resposta => resposta.json())
             .then(dados => {
-                console.log(dados);
+                console.log('Login efetuado:', dados);
             })
             .catch(erro => {
                 console.error('Erro ao fazer login:', erro);
             });
         });
-    const formProduto = document.getElementById('form-produto')
-    formProduto.addEventListener('submit', function(evento){
-        evento.preventDefault()
-        const nome = document.getElementById('nome-produto').value;
-        const preco = document.getElementById('preco-produto').value;
-    })
 
-        if(nome === '' || preco === ''){
-            document.getElementById('mensagem-produto').textContent = 'Preencha nome e preço' 
-            return
-        }
-        if(Number(preco) <= 0){
-            document.getElementById('mensagem-produto').textContent = 'O preço precisa ser maior que zero'
-            return
-        }
-        fetch('http://localhost:3000/login', {
+        // Evento de Cadastro de Produto
+        const formProduto = document.getElementById('form-produto');
+        formProduto.addEventListener('submit', function(evento) {
+            evento.preventDefault();
+
+            const nome = document.getElementById('nome-produto').value;
+            const preco = document.getElementById('preco-produto').value;
+
+            // Validações
+            if (nome === '' || preco === '') {
+                document.getElementById('mensagem-produto').textContent = 'Preencha nome e preço';
+                return;
+            }
+
+            if (Number(preco) <= 0) {
+                document.getElementById('mensagem-produto').textContent = 'O preço precisa ser maior que zero';
+                return;
+            }
+
+            // Envio para o servidor
+            fetch('http://localhost:3000/produtos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -116,11 +117,42 @@
             .then(resposta => resposta.json())
             .then(dados => {
                 console.log(dados);
-            document.getElementById('mensagem-produto').textContent = 'Produto cadastrado!'
+                document.getElementById('mensagem-produto').textContent = 'Produto cadastrado!';
+                adicionarProduto(nome, Number(preco)); // Adiciona na lista da tela
             })
-            
-    </script>
-    <script src="server.js"></script>
+            .catch(erro => {
+                console.error('Erro ao cadastrar produto:', erro);
+            });
+        });
 
+        // Gestão de Produtos no Frontend
+        let produtos = [
+            { nome: 'Camiseta', preco: 49.90 },
+            { nome: 'Caneca', preco: 24.90 },
+            { nome: 'Boné', preco: 39.90 }
+        ];
+
+        function cardProdutos(produto) {
+            return `
+            <div class="cardProduto">
+                <h3>${produto.nome}</h3>
+                <p>R$ ${produto.preco.toFixed(2)}</p>
+            </div>`;
+        }
+
+        function renderProdutos() {
+            const container = document.getElementById('tela-produtos');
+            const cards = produtos.map(cardProdutos).join('');
+            container.innerHTML = '<h2>Tela Produtos</h2>' + cards;
+        }
+
+        function adicionarProduto(nome, preco) {
+            produtos.push({ nome: nome, preco: preco });
+            renderProdutos();
+        }
+
+        // Renderiza os produtos ao carregar a página
+        renderProdutos();
+    </script>
 </body>
 </html>
